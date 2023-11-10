@@ -65,6 +65,24 @@ async function run() {
       const result = await BookingServices.insertOne(bookingdata)
       res.send(result)
     })
+    app.post("/booking",  async (req, res) => {
+      const bookingdata = req.body
+      const result = await BookingServices.insertOne(bookingdata)
+      res.send(result)
+    })
+    app.get("/bookingexhaust",  async (req, res) => {
+      const bookingdata = req.query
+
+     const infind = await BookingServices.find({
+        $and: [
+          { customerEmail: bookingdata.customerEmail },
+          { serviceID: bookingdata.serviceID }
+        ]
+      }).toArray()
+      res.send(infind)
+    })
+
+
 
 
 
