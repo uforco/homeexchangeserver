@@ -65,22 +65,38 @@ async function run() {
       const result = await BookingServices.insertOne(bookingdata)
       res.send(result)
     })
-    app.post("/booking",  async (req, res) => {
-      const bookingdata = req.body
-      const result = await BookingServices.insertOne(bookingdata)
-      res.send(result)
-    })
+    // bookingexhaust
     app.get("/bookingexhaust",  async (req, res) => {
       const bookingdata = req.query
-
      const infind = await BookingServices.find({
         $and: [
           { customerEmail: bookingdata.customerEmail },
           { serviceID: bookingdata.serviceID }
         ]
       }).toArray()
-      res.send(infind)
+      console.log(infind, infind.length, bookingdata)
+      if(infind.length){
+        res.send({exhaust: false})
+      }else{
+        res.send({exhaust: true})
+      }
     })
+ // customar booking list
+    app.get("/customerbookinglist", async(req, res)=>{
+        const result = await BookingServices.find({customerEmail: req.query.email}).toArray()
+        console.log(result.length)
+        res.send(result)
+    })
+  // customer service delete in booking
+    app.delete("/deletebooking/:id", async(req, res)=>{
+        const deletebook = {_id: new ObjectId(req.params.id)}
+        const result = await BookingServices.deleteOne(deletebook)
+        res.send(result)
+    })
+
+
+
+
 
 
 
