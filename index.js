@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config()
 const app = express()
 const port = process.env.PORT || 4500
@@ -26,6 +26,7 @@ async function run() {
     const database = client.db('Home_Exchange')
     const userinfo = database.collection('UserInfo')
     const services = database.collection('Services')
+    const BookingServices = database.collection('BookingServices')
 
     // User info Data
     app.post("/registration",  async (req, res) => {
@@ -38,17 +39,39 @@ async function run() {
             projection: { _id: 0, password: 0, email: 0 },
           };
         const result = await userinfo.findOne(req.query, options)
+        console.log(result)
         res.send(result)
     })
 
     // Services route
     app.post("/addservice",  async (req, res) => {
-        console.log(req.body)
-        // const result = await userinfo.insertOne(req.body)
-        res.send({ name : "Sharif", age : 25 })
+        const result = await services.insertOne(req.body)
+        res.send(result)
+    })
+    // Services findOne in _id
+    app.get("/singelservice/:id",  async (req, res) => {
+        const qurey = { _id : new ObjectId(req.params.id) }
+        const result = await services.findOne(qurey)
+        res.send(result)
+    })
+    app.get("/prividerallservices/:Email",  async (req, res) => {
+        const qurey = { providerEmail : req.params.Email }
+        const result = await services.find(qurey).toArray()
+        res.send({prividerservice : result.length})
+    })
+    // booking api system
+    app.post("/booking",  async (req, res) => {
+      const bookingdata = req.body
+      const result = await BookingServices.insertOne(bookingdata)
+      res.send(result)
     })
 
 
+
+    // app.delete("/delete",  async (req, res) => {
+    //     const result = await movies.deleteMany();
+    //     res.send(result)
+    // })
 
 
 
