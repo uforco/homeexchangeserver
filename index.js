@@ -94,8 +94,22 @@ async function run() {
         res.send(result)
     })
 
-
-
+    // dashbord My schedule api
+    app.get("/myschedule", async(req, res)=>{
+      const query = { providerEmail: req.query.providerEmail };
+      const result = await BookingServices.find(query).toArray()
+      res.send(result)
+    })
+    app.put("/schedulestatus", async(req, res)=>{
+        const query = { _id : new ObjectId(req.body.bookingid)} 
+        const updateDoc = {
+          $set: {
+            bookingStatus: req.body.bookingStatus
+          },
+        };
+        const result = await BookingServices.updateOne(query, updateDoc)
+      res.send(result)
+    })
 
 
 
