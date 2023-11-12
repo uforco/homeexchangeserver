@@ -42,13 +42,17 @@ async function run() {
         console.log(result)
         res.send(result)
     })
-
-    // Services route
-    app.post("/addservice",  async (req, res) => {
-        const result = await services.insertOne(req.body)
+    app.get("/allservice",  async (req, res) => {
+      const result = await services.find(req.body).toArray()
+      res.send(result)
+    })
+    
+    // Services findOne in _id
+    app.get("/singelservice/:id",  async (req, res) => {
+        const qurey = { _id : new ObjectId(req.params.id) }
+        const result = await services.findOne(qurey)
         res.send(result)
     })
-    // Services findOne in _id
     app.get("/singelservice/:id",  async (req, res) => {
         const qurey = { _id : new ObjectId(req.params.id) }
         const result = await services.findOne(qurey)
@@ -57,7 +61,7 @@ async function run() {
     app.get("/prividerallservices/:Email",  async (req, res) => {
         const qurey = { providerEmail : req.params.Email }
         const result = await services.find(qurey).toArray()
-        res.send({prividerservice : result.length})
+        res.send({prividerservice : result.length })
     })
     // booking api system
     app.post("/booking",  async (req, res) => {
@@ -95,6 +99,16 @@ async function run() {
     })
 
     // dashbord My schedule api
+    // Services route
+    app.post("/addservice",  async (req, res) => {
+      const result = await services.insertOne(req.body)
+      res.send(result)
+    })
+    app.get("/myschedule", async(req, res)=>{
+      const query = { providerEmail: req.query.providerEmail };
+      const result = await BookingServices.find(query).toArray()
+      res.send(result)
+    })
     app.get("/myschedule", async(req, res)=>{
       const query = { providerEmail: req.query.providerEmail };
       const result = await BookingServices.find(query).toArray()
@@ -110,16 +124,46 @@ async function run() {
         const result = await BookingServices.updateOne(query, updateDoc)
       res.send(result)
     })
+    // manage service route
+    app.get("/manageservice/:Email",  async (req, res) => {
+      const qurey = { providerEmail : req.params.Email }
+      const options = {
+        projection: { _id: 1, UploadTime: 1, serviceName: 1, servicePhoro: 1, servicePrice: 1},
+      };
+      const result = await services.find(qurey, options).toArray()
+      res.send(result)
+    })
+    app.delete("/manageservice/:id",  async (req, res) => {
+      const Sdelete = { _id : new ObjectId(req.params.id) }
+      const Bdekete = { serviceID : req.params.id }
+      const mySdelete = await services.deleteOne(Sdelete)
+      const customarBdekete = await BookingServices.deleteOne(Bdekete)
+      res.send({mySdelete, customarBdekete})
+    })
+    // update data 
+    app.patch("/updateservice/:id", async(req, res)=>{
+      const options = { upsert: true };
+      const whatdata = req.body
+      const serviceId = req.params.id
+      const whodata = { _id: new ObjectId(serviceId)};
+      const updateB = {
+        $set: { 
+          serviceAria: whatdata.serviceAria,
+          serviceName: whatdata.serviceName,
+          servicePhoto: whatdata.servicePhoto,
+          servicePrice: whatdata.servicePrice,
+          providerEmail: whatdata.providerEmail,
 
-
-
-
-
-
-    // app.delete("/delete",  async (req, res) => {
-    //     const result = await movies.deleteMany();
-    //     res.send(result)
-    // })
+         },
+      };
+      const updateDoc = {
+         $set: {...whatdata },
+      };
+      const results = await services.updateOne(whodata, updateDoc, options);
+      const resultb = await BookingServices.updateOne({serviceID: serviceId}, updateB, options);
+      res.send({resultb, results})
+    })
+    
 
 
 
