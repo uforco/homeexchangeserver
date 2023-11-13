@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://bespoke-cajeta-9a88ba.netlify.app"],
     credentials: true,
   })
 );
@@ -225,12 +225,8 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-//   http://localhost:4500/
-
 app.get("/", (req, res) => {
-  // res.redirect('http://localhost:5173/')
-  res.send("Hello World!");
+  res.redirect('https://bespoke-cajeta-9a88ba.netlify.app/')
 });
 
 app.listen(port, () => {
